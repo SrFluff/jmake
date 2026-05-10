@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <cJSON.h>
+#include <cjson/cJSON.h>
 #include <unistd.h>
 #include <stdbool.h>
 
@@ -30,6 +30,7 @@ int main(int argc, char **argv) {
 		printf("--verbose, -V Run with increased verbosity\n");
 		printf("--version, -v Return the current version\n");
 		printf("--help Print this help message\n");
+		exit(0);
 	}
 
 	if ( argc == 2 && ( strcmp(argv[1], "-V") == 0 || strcmp(argv[1], "--verbose") == 0 ) ) {
