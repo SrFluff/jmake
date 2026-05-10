@@ -34,3 +34,9 @@ The config (make.json) takes four keys:
 	"cflags" - the flags for the compiler
 	"src" - the source C files
 	"exe" - the executable name
+
+---
+
+Note
+
+This project depends on cJSON, so...install that.
