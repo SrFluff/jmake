@@ -21,7 +21,7 @@ char* readFile( const char *filePath ) {
 
 int main(int argc, char **argv) {
 	
-	const char *VERSION = "1.0.0";
+	const char *VERSION = "1.0.1";
 	bool VERBOSE = false;
 
 	if ( argc == 2 && strcmp(argv[1], "--help") == 0 ) {
