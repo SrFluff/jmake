@@ -21,7 +21,7 @@ char* readFile( const char *filePath ) {
 
 int main(int argc, char **argv) {
 	
-	const char *VERSION = "1.0.1";
+	const char *VERSION = "1.1.1";
 	bool VERBOSE = false;
 
 	if ( argc == 2 && strcmp(argv[1], "--help") == 0 ) {
@@ -30,7 +30,6 @@ int main(int argc, char **argv) {
 		printf("--verbose, -V Run with increased verbosity\n");
 		printf("--version, -v Return the current version\n");
 		printf("--help Print this help message\n");
-		exit(0);
 	}
 
 	if ( argc == 2 && ( strcmp(argv[1], "-V") == 0 || strcmp(argv[1], "--verbose") == 0 ) ) {
@@ -88,17 +87,34 @@ int main(int argc, char **argv) {
 	char *exe = exe_ptr->valuestring;
 
 	if ( VERBOSE ) {
+		printf("Setting command length\n");
+	}
+
+	int len = snprintf(NULL, 0, "%s %s -o %s %s", cc, cflags, exe, src);
+
+	if ( VERBOSE ) {
+		printf("Allocating space for command\n");
+	}
+
+	char *command = malloc(len + 1);
+
+	if ( VERBOSE ) {
 		printf("Writing command to buffer\n");
 	}
 
-	char command[100];
-	sprintf(command, "%s %s -o %s %s", cc, cflags, exe, src);
+	snprintf(command, len + 1, "%s %s -o %s %s", cc, cflags, exe, src);
 	
 	if ( VERBOSE ) {
 		printf("Running command\n");
 	}
 
 	system(command);
+
+	if ( VERBOSE ) {
+		printf("Freeing command\n");
+	}
+
+	free(command);
 
 	if ( VERBOSE ) {
 		printf("Freeing JSON object\n");
