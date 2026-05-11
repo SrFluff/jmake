@@ -21,15 +21,17 @@ char* readFile( const char *filePath ) {
 
 int main(int argc, char **argv) {
 	
-	const char *VERSION = "1.1.1";
+	const char *VERSION = "1.2.1";
 	bool VERBOSE = false;
 
 	if ( argc == 2 && strcmp(argv[1], "--help") == 0 ) {
-		printf("Usage: jmake [optional flags]\n");
+		printf("Usage: jmake [optional flags] [optional command]\n");
 		printf("Optional flags:\n");
 		printf("--verbose, -V Run with increased verbosity\n");
 		printf("--version, -v Return the current version\n");
-		printf("--help Print this help message\n");
+		printf("--help        Print this help message\n");
+		printf("Optional commands:\n");
+		printf("install        Copies the executable to /usr/local/bin/\n");
 	}
 
 	if ( argc == 2 && ( strcmp(argv[1], "-V") == 0 || strcmp(argv[1], "--verbose") == 0 ) ) {
@@ -85,6 +87,19 @@ int main(int argc, char **argv) {
 
 	cJSON *exe_ptr = cJSON_GetObjectItem(root, "exe");
 	char *exe = exe_ptr->valuestring;
+
+	if ( argc == 2 && strcmp(argv[1],"install") == 0 ) {
+		if ( !(access(exe, F_OK) == 0) ) {
+			printf("No executable found.\n");
+			exit(1);
+		}
+		int install_len = snprintf(NULL, 0, "cp %s /usr/local/bin/", exe);
+		char *install = malloc(install_len + 1);
+		snprintf(install, install_len + 1, "cp %s /usr/local/bin/", exe);
+		system(install);
+		free(install);
+		exit(0);
+	}
 
 	if ( VERBOSE ) {
 		printf("Setting command length\n");

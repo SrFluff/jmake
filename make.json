@@ -1,0 +1,6 @@
+{
+	"cc":"clang",
+	"cflags":"-O3 -march=native -lcjson",
+	"src":"main.c",
+	"exe":"jmake"
+}

@@ -25,6 +25,9 @@ To compile normally:
 Or with verbosity:
 	jmake -V
 
+To install:
+	jmake install
+
 ---
 
 Configuration
