@@ -6,3 +6,6 @@ default:
 
 install:
 	cp jmake /usr/local/bin/
+
+test:
+	$(COMPILER) -fsyntax-only -lcjson main.c > /dev/null 2>&1
