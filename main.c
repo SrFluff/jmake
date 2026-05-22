@@ -21,17 +21,19 @@ char* readFile( const char *filePath ) {
 
 int main(int argc, char **argv) {
 	
-	const char *VERSION = "1.2.1";
+	const char *VERSION = "1.3.1";
 	bool VERBOSE = false;
 
 	if ( argc == 2 && strcmp(argv[1], "--help") == 0 ) {
-		printf("Usage: jmake [optional flags] [optional command]\n");
+		printf("Usage: jmake [optional flags] [optional command] [optional string]\n");
 		printf("Optional flags:\n");
-		printf("--verbose, -V Run with increased verbosity\n");
-		printf("--version, -v Return the current version\n");
-		printf("--help        Print this help message\n");
+		printf("\t--verbose, -V Run with increased verbosity\n");
+		printf("\t--version, -v Return the current version\n");
+		printf("\t--help        Print this help message\n");
 		printf("Optional commands:\n");
-		printf("install        Copies the executable to /usr/local/bin/\n");
+		printf("\tproject        Takes a string as a project name for the executable\n");
+		printf("\tinstall        Copies the executable to /usr/local/bin/\n");
+		exit(0);
 	}
 
 	if ( argc == 2 && ( strcmp(argv[1], "-V") == 0 || strcmp(argv[1], "--verbose") == 0 ) ) {
@@ -40,6 +42,23 @@ int main(int argc, char **argv) {
 
 	if ( argc == 2 && ( strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0 ) ) {
 		printf("%s\n",VERSION);
+		exit(0);
+	}
+
+	if ( argc == 3 && ( strcmp(argv[1], "project") == 0 ) ) {
+		int len = snprintf(
+				NULL, 
+				0, 
+				"echo '{\\n\\t\"cc\":\"clang\",\\n\\t\"cflags\":\"-O3 -march=native\",\\n\\t\"src\":\"main.c\",\\n\\t\"out\":\"%s\"\\n}' > make.json", 
+				argv[2]
+				);
+		char *command = malloc(len + 1);
+		snprintf(command, 
+				len + 1, 
+				"echo '{\\n\\t\"cc\":\"clang\",\\n\\t\"cflags\":\"-O3 -march=native\",\\n\\t\"src\":\"main.c\",\\n\\t\"out\":\"%s\"\\n}' > make.json",
+			   	argv[2]);
+		system(command);
+		free(command);
 		exit(0);
 	}
 

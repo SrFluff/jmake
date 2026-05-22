@@ -28,6 +28,9 @@ Or with verbosity:
 To install:
 	jmake install
 
+To generate a make.json file:
+	jmake project <project name>
+
 ---
 
 Configuration
