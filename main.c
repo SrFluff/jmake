@@ -21,7 +21,7 @@ char* readFile( const char *filePath ) {
 
 int main(int argc, char **argv) {
 	
-	const char *VERSION = "1.3.1";
+	const char *VERSION = "1.3.2";
 	bool VERBOSE = false;
 
 	if ( argc == 2 && strcmp(argv[1], "--help") == 0 ) {
@@ -49,13 +49,13 @@ int main(int argc, char **argv) {
 		int len = snprintf(
 				NULL, 
 				0, 
-				"echo '{\\n\\t\"cc\":\"clang\",\\n\\t\"cflags\":\"-O3 -march=native\",\\n\\t\"src\":\"main.c\",\\n\\t\"out\":\"%s\"\\n}' > make.json", 
+				"echo '{\\n\\t\"cc\":\"clang\",\\n\\t\"cflags\":\"-O3 -march=native\",\\n\\t\"src\":\"main.c\",\\n\\t\"exe\":\"%s\"\\n}' > make.json", 
 				argv[2]
 				);
 		char *command = malloc(len + 1);
 		snprintf(command, 
 				len + 1, 
-				"echo '{\\n\\t\"cc\":\"clang\",\\n\\t\"cflags\":\"-O3 -march=native\",\\n\\t\"src\":\"main.c\",\\n\\t\"out\":\"%s\"\\n}' > make.json",
+				"echo '{\\n\\t\"cc\":\"clang\",\\n\\t\"cflags\":\"-O3 -march=native\",\\n\\t\"src\":\"main.c\",\\n\\t\"exe\":\"%s\"\\n}' > make.json",
 			   	argv[2]);
 		system(command);
 		free(command);
