@@ -1,11 +1,11 @@
 jmake
----
+======
 
 About
 
 A very simple build script using JSON as its config language.
 
----
+======
 
 Compiling
 
@@ -20,7 +20,7 @@ You can also make jmake with jmake:
 Then:
 	sudo jmake install
 
----
+======
 
 Usage
 
@@ -36,7 +36,10 @@ To clean:
 To generate a make.json file:
 	jmake project <project name>
 
----
+To export your make.json to Makefile:
+	jmake export > Makefile
+
+======
 
 Configuration
 
@@ -47,7 +50,7 @@ The config (make.json) takes four keys:
 	"exe" - The executable name
 	"install_dir" - The directory where your binary will be copied to.
 
----
+======
 
 Note
 
