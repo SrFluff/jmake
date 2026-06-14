@@ -27,9 +27,6 @@ Usage
 To compile normally:
 	jmake
 
-Or with verbosity:
-	jmake -V
-
 To install:
 	jmake install
 
@@ -44,10 +41,11 @@ To generate a make.json file:
 Configuration
 
 The config (make.json) takes four keys:
-	"cc" - the compiler
-	"cflags" - the flags for the compiler
-	"src" - the source C files
-	"exe" - the executable name
+	"cc" - The compiler
+	"cflags" - The flags for the compiler
+	"src" - The source C files
+	"exe" - The executable name
+	"install_dir" - The directory where your binary will be copied to.
 
 ---
 

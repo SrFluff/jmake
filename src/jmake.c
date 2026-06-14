@@ -4,6 +4,7 @@
 #include <cjson/cJSON.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <sys/stat.h>
 
 char* readFile( const char *filePath ) {
 	FILE *file = fopen(filePath,"rb");
@@ -21,13 +22,11 @@ char* readFile( const char *filePath ) {
 
 int main(int argc, char **argv) {
 	
-	const char *VERSION = "1.4.2";
-	bool VERBOSE = false;
+	const char *VERSION = "1.4.3";
 
 	if ( argc == 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) ) {
 		printf("Usage: jmake [flag] [command] <project>\n");
 		printf("Optional flags:\n");
-		printf("\t--verbose, -V Run with increased verbosity.\n");
 		printf("\t--version, -v Return the current version.\n");
 		printf("\t--help, -h    Print this help message.\n");
 		printf("Optional commands:\n");
@@ -35,10 +34,6 @@ int main(int argc, char **argv) {
 		printf("\tinstall           Copies the executable to /usr/local/bin/.\n");
 		printf("\tclean             Remove the executable.\n");
 		exit(0);
-	}
-
-	if ( argc == 2 && ( strcmp(argv[1], "-V") == 0 || strcmp(argv[1], "--verbose") == 0 ) ) {
-		VERBOSE = true;
 	}
 
 	if ( argc == 2 && ( strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0 ) ) {
@@ -49,9 +44,10 @@ int main(int argc, char **argv) {
 	if ( argc == 3 && ( strcmp(argv[1], "project") == 0 ) ) {
 		cJSON *root = cJSON_CreateObject();
 		cJSON_AddStringToObject(root,"cc","CC");
-		cJSON_AddStringToObject(root,"cflags","-O3 -march=native");
+		cJSON_AddStringToObject(root,"cflags","");
 		cJSON_AddStringToObject(root,"src","main.c");
 		cJSON_AddStringToObject(root,"exe",argv[2]);
+		cJSON_AddStringToObject(root,"install_dir","/usr/local/bin");
 		char *root_string = cJSON_Print(root);
 		FILE *file_ptr = fopen("make.json","w");
 
@@ -91,99 +87,106 @@ int main(int argc, char **argv) {
 		exit(0);
 	}
 
-	if ( VERBOSE ) {
-		printf("Checking for make.json\n");
-	}
-
 	if ( !(access("make.json", F_OK) == 0) ) {
-		printf("No make.json, stop.\n");
+		printf("jmake: No make.json.\n");
 		exit(1);
-	}
-
-	if ( VERBOSE ) {
-		printf("Reading make.json\n");
 	}
 
 	char *data = readFile("make.json");
 	cJSON *root = cJSON_Parse(data);
 	free(data);
 
-	if ( VERBOSE ) {
-		printf("Checking cc\n");
+	char *cc;
+	char *cflags;
+	char *src;
+	char *exe;
+	char *install_dir;
+
+	if ( cJSON_HasObjectItem(root, "cc") ) {
+		cJSON *cc_ptr = cJSON_GetObjectItem(root, "cc");
+		cc = cc_ptr->valuestring;
+	} else {
+		cc = "CC";
+		printf("jmake: Warning, no compiler specified in make.json, falling back to '%s'.\n",cc);
 	}
 	
-	cJSON *cc_ptr = cJSON_GetObjectItem(root, "cc");
-	char *cc = cc_ptr->valuestring;
-	
-	if ( VERBOSE ) {
-		printf("Checking cflags\n");
-	}
-	
-	cJSON *cflags_ptr = cJSON_GetObjectItem(root, "cflags");
-	char *cflags = cflags_ptr->valuestring;
-
-	if ( VERBOSE ) {
-		printf("Checking src\n");
+	if ( cJSON_HasObjectItem(root, "cflags") ) {
+		cJSON *cflags_ptr = cJSON_GetObjectItem(root, "cflags");
+		cflags = cflags_ptr->valuestring;
+	} else {
+		cflags = "";
+		printf("jmake: Warning, no cflags specified in make.json, falling back to '%s'.\n",cflags);
 	}
 
-	cJSON *src_ptr = cJSON_GetObjectItem(root, "src");
-	char *src = src_ptr->valuestring;
-
-	if ( VERBOSE ) {
-		printf("Checking exe\n");
+	if ( cJSON_HasObjectItem(root, "src") ) {
+		cJSON *src_ptr = cJSON_GetObjectItem(root, "src");
+		src = src_ptr->valuestring;
+	} else {
+		src = "main.c";
+		printf("jmake: Warning, no src specified in make.json, falling back to '%s'.\n",src);
 	}
 
-	cJSON *exe_ptr = cJSON_GetObjectItem(root, "exe");
-	char *exe = exe_ptr->valuestring;
+	if ( cJSON_HasObjectItem(root, "exe") ) {
+		cJSON *exe_ptr = cJSON_GetObjectItem(root, "exe");
+		exe = exe_ptr->valuestring;
+	} else {
+		exe = "main";
+		printf("jmake: Warning, no exe specified in make.json, falling back to '%s'.\n",exe);
+	}
 
 	if ( argc == 2 && strcmp(argv[1],"install") == 0 ) {
-		if ( !(access(exe, F_OK) == 0) ) {
-			printf("No executable found.\n");
+
+		if ( cJSON_HasObjectItem(root, "install_dir") ) {
+			cJSON *install_dir_ptr = cJSON_GetObjectItem(root, "install_dir");
+			install_dir = install_dir_ptr->valuestring;
+		} else {
+			printf("jmake: No install_dir specified in make.json.\n");
 			exit(1);
 		}
-		int install_len = snprintf(NULL, 0, "cp %s /usr/local/bin/", exe);
-		char *install = malloc(install_len + 1);
-		snprintf(install, install_len + 1, "cp %s /usr/local/bin/", exe);
-		system(install);
-		free(install);
+
+		if ( !(access(exe, F_OK) == 0) ) {
+			printf("jmake: No executable found.\n");
+			exit(1);
+		}
+
+		size_t path_size = snprintf(NULL, 0, "%s/%s", install_dir, exe) + 1; // Generates formatted path.
+		char *path = malloc(path_size); // Makes a string with the size of the path.
+		snprintf(path, path_size, "%s/%s", install_dir, exe); // Puts the formatted path string in the place in memory.
+
+		FILE *file = fopen(exe, "rb"); // Opens the executable for reading.
+		if ( file == NULL ) {
+			printf("jmake: Failed to open '%s'.\n",exe);
+			exit(1);
+		}
+		
+		fseek(file, 0, SEEK_END); // Goes to the end to get file size.
+		long exe_size = ftell(file); // Gets the size by ftell.
+
+		rewind(file); // Goes to the start to be able to read properly.
+		char *buffer = malloc(exe_size); // Allocates memory to store binary content.
+		fread(buffer,exe_size,1,file); // Reads content into buffer.
+		fclose(file);
+
+		FILE *install_ptr = fopen(path,"wb"); // Opens install file for writing.
+		if ( install_ptr == NULL ) {
+			printf("jmake: Failed to open '%s'.\n",path);
+			free(buffer);
+			free(path);
+			exit(1);
+		}
+		fwrite(buffer, exe_size, 1, install_ptr); // Writes from the buffer to the install stream.
+		fclose(install_ptr);
+		chmod(path,0755); // Ensures it's executable.
+		free(buffer);
+		free(path);
 		exit(0);
 	}
 
-	if ( VERBOSE ) {
-		printf("Setting command length\n");
-	}
-
 	int len = snprintf(NULL, 0, "%s %s -o %s %s", cc, cflags, exe, src);
-
-	if ( VERBOSE ) {
-		printf("Allocating space for command\n");
-	}
-
 	char *command = malloc(len + 1);
-
-	if ( VERBOSE ) {
-		printf("Writing command to buffer\n");
-	}
-
 	snprintf(command, len + 1, "%s %s -o %s %s", cc, cflags, exe, src);
-	
-	if ( VERBOSE ) {
-		printf("Running command\n");
-	}
-
 	system(command);
-
-	if ( VERBOSE ) {
-		printf("Freeing command\n");
-	}
-
 	free(command);
-
-	if ( VERBOSE ) {
-		printf("Freeing JSON object\n");
-	}
-	
 	cJSON_Delete(root);
-
 	return 0;
 }
