@@ -5,7 +5,7 @@ SOURCE = src/jmake.c
 INSTALLDIR = /usr/local/bin
 
 all:
-	CC $(CFLAGS) -lcjson -o $(TARGET) $(SOURCE)
+	$(COMPILER) $(CFLAGS) -lcjson -o $(TARGET) $(SOURCE)
 
 install:
 	install -m 755 $(TARGET) $(INSTALLDIR)
