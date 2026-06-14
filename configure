@@ -1,0 +1,37 @@
+#!/bin/sh
+
+echo "Checking for C compiler..."
+
+if ! $(which cc > /dev/null 2>&1); then
+	echo "No C compiler."
+	exit 1
+fi
+
+echo "Checking if C compiler works..."
+
+if ! $(cc -o "bin/test" "src/test.c" > /dev/null 2>&1); then
+	echo "Compiler failed to compile test."
+	exit 1
+fi
+
+echo "Checking if test binary works..."
+
+if ! $(bin/"test"); then
+	echo "Test binary failed to run."
+	rm "bin/test"
+	exit 1
+fi
+
+rm "bin/test"
+
+echo "Checking if cJSON is installed..."
+
+if ! $(cc -lcjson -o "bin/cjson_test" "src/cjson_test.c" > /dev/null 2>&1); then
+	echo "Compiler failed to compile cJSON test."
+	exit 1
+fi
+
+rm "bin/cjson_test"
+mv Makefile.in Makefile
+
+echo "Tests passed, run 'make' to compile Jmake!"
