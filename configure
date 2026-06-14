@@ -1,4 +1,5 @@
 #!/bin/sh
+mkdir -p "bin/"
 
 echo "Checking for C compiler..."
 
