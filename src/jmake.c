@@ -22,7 +22,7 @@ char* readFile( const char *filePath ) {
 
 int main(int argc, char **argv) {
 	
-	const char *VERSION = "1.4.3";
+	const char *VERSION = "1.5.3";
 
 	if ( argc == 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) ) {
 		printf("Usage: jmake [flag] [command] <project>\n");
@@ -33,6 +33,7 @@ int main(int argc, char **argv) {
 		printf("\tproject <project> Generates a make.json file, with the executable name set to <project>.\n");
 		printf("\tinstall           Copies the executable to /usr/local/bin/.\n");
 		printf("\tclean             Remove the executable.\n");
+		printf("\texport            Print the contents of make.json in Makefile syntax.\n");
 		exit(0);
 	}
 
@@ -93,6 +94,10 @@ int main(int argc, char **argv) {
 	}
 
 	char *data = readFile("make.json");
+	if ( data == NULL ) {
+		printf("jmake: Failed to read make.json.\n");
+		exit(1);
+	}
 	cJSON *root = cJSON_Parse(data);
 	free(data);
 
@@ -132,6 +137,31 @@ int main(int argc, char **argv) {
 	} else {
 		exe = "main";
 		printf("jmake: Warning, no exe specified in make.json, falling back to '%s'.\n",exe);
+	}
+
+	if ( argc == 2 && strcmp(argv[1],"export") == 0 ) {
+		if ( cJSON_HasObjectItem(root, "install_dir") ) {
+			cJSON *install_dir_ptr = cJSON_GetObjectItem(root, "install_dir");
+			install_dir = install_dir_ptr->valuestring;
+		} else {
+			install_dir = "/usr/local/bin";
+			printf("jmake: Warning, no install_dir specified in make.json, falling back to '%s'.\n",install_dir);
+		}
+
+		printf("COMPILER = %s\n",cc);
+		printf("CFLAGS = %s\n",cflags);
+		printf("SOURCE = %s\n",src);
+		printf("TARGET = %s\n",exe);
+		printf("INSTALLDIR = %s\n\n",install_dir);
+		
+		printf("all:\n");
+		printf("\t$(COMPILER) $(CFLAGS) -o $(TARGET) $(SOURCE)\n");
+		printf("install:\n");
+		printf("\tinstall -m 755 $(TARGET) $(INSTALLDIR)\n");
+		printf("clean:\n");
+		printf("\trm $(TARGET)\n");
+		cJSON_Delete(root);
+		exit(0);
 	}
 
 	if ( argc == 2 && strcmp(argv[1],"install") == 0 ) {

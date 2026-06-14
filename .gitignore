@@ -2,3 +2,4 @@
 main
 jmake
 bin/*
+prep_for_push

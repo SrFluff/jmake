@@ -1,5 +1,5 @@
 {
-	"cc":"clang",
+	"cc":"CC",
 	"cflags":"-O3 -march=native -lcjson",
 	"src":"src/jmake.c",
 	"exe":"bin/jmake",
