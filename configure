@@ -1,10 +1,34 @@
 #!/bin/sh
+
+COMPILER="CC"
+CFLAGS="-O3 -march=native"
+
+while [ $# -gt 0 ]; do
+	case "$1" in
+		--compiler=*)
+			COMPILER="${1#*=}"
+			;;
+		--cflags=*)
+			CFLAGS="${1#*=}"
+			;;
+		--help)
+			echo "Usage: ./configure [flag(s)]"
+			echo "flags:"
+			echo "--compiler=<compiler>"
+			echo "--cflags=<cflags>"
+			echo "--help"
+			exit 0
+			;;
+	esac
+	shift
+done
+
 mkdir -p "bin/"
 
 echo "Checking for C compiler..."
 
-if ! $(which CC > /dev/null 2>&1); then
-	echo "CC could not be found."
+if ! $(which "$COMPILER" > /dev/null 2>&1); then
+	echo "'$COMPILER' could not be found."
 	exit 1
 fi
 
@@ -34,6 +58,12 @@ fi
 
 rm "bin/cjson_test"
 
+echo "Generating src/buildinfo.h..."
 echo "#define PLATFORM \"$(uname)\"" > src/buildinfo.h
+echo "#define COMPILER \"$COMPILER\"" >> src/buildinfo.h
+echo "Generating Makefile..."
+sed -e "s|@CC@|$COMPILER|g" \
+	-e "s|@CFLAGS@|$CFLAGS|g" \
+	Makefile.in > Makefile
 
 echo "Tests passed, run 'make' to compile Jmake!"

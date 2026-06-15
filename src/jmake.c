@@ -24,7 +24,7 @@ char* readFile( const char *filePath ) {
 
 int main(int argc, char **argv) {
 	
-	const char *VERSION = "1.5.4";
+	const char *VERSION = "1.5.5";
 
 	if ( argc == 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) ) {
 		printf("Usage: jmake [flag] [command] <project>\n");
@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
 	}
 
 	if ( argc == 2 && ( strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0 ) ) {
-		printf("%s (%s)\n",VERSION,PLATFORM);
+		printf("%s (%s - %s)\n",VERSION,PLATFORM,COMPILER);
 		exit(0);
 	}
 

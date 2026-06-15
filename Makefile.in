@@ -1,5 +1,5 @@
-COMPILER = CC
-CFLAGS = -O3 -march=native
+COMPILER = @CC@
+CFLAGS = @CFLAGS@
 TARGET = bin/jmake
 SOURCE = src/jmake.c
 INSTALLDIR = /usr/local/bin
@@ -13,3 +13,4 @@ install:
 clean:
 	rm $(TARGET)
 	rm src/buildinfo.h
+	rm Makefile
