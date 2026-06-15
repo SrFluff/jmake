@@ -3,8 +3,8 @@ mkdir -p "bin/"
 
 echo "Checking for C compiler..."
 
-if ! $(which cc > /dev/null 2>&1); then
-	echo "No C compiler."
+if ! $(which CC > /dev/null 2>&1); then
+	echo "CC could not be found."
 	exit 1
 fi
 
