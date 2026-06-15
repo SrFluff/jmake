@@ -33,6 +33,7 @@ if ! $(cc -lcjson -o "bin/cjson_test" "src/cjson_test.c" > /dev/null 2>&1); then
 fi
 
 rm "bin/cjson_test"
-mv Makefile.in Makefile
+
+echo "#define PLATFORM \"$(uname)\"" > src/buildinfo.h
 
 echo "Tests passed, run 'make' to compile Jmake!"

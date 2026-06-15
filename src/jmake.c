@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include <sys/stat.h>
 
+#include "buildinfo.h"
+
 char* readFile( const char *filePath ) {
 	FILE *file = fopen(filePath,"rb");
 	fseek(file, 0, SEEK_END);
@@ -22,7 +24,7 @@ char* readFile( const char *filePath ) {
 
 int main(int argc, char **argv) {
 	
-	const char *VERSION = "1.5.3";
+	const char *VERSION = "1.5.4";
 
 	if ( argc == 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) ) {
 		printf("Usage: jmake [flag] [command] <project>\n");
@@ -38,7 +40,7 @@ int main(int argc, char **argv) {
 	}
 
 	if ( argc == 2 && ( strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0 ) ) {
-		printf("%s\n",VERSION);
+		printf("%s (%s)\n",VERSION,PLATFORM);
 		exit(0);
 	}
 

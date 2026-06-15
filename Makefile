@@ -12,3 +12,4 @@ install:
 
 clean:
 	rm $(TARGET)
+	rm src/buildinfo.h
