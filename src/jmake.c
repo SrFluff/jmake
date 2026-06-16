@@ -10,12 +10,20 @@
 
 char* readFile( const char *filePath ) {
 	FILE *file = fopen(filePath,"rb");
+	if ( file == NULL ) {
+		printf("jmake: Failed to open '%s'.\n",filePath);
+		exit(1);
+	}
 	fseek(file, 0, SEEK_END);
 	long length = ftell(file);
 	fseek(file, 0, SEEK_SET);
 	char *buffer = malloc(length + 1);
+	if ( buffer == NULL ) {
+		printf("jmake: Failed to allocate space.\n");
+		exit(1);
+	}
 	if ( buffer ) {
-		fread(buffer, 1, length, file);
+		size_t items_read = fread(buffer, 1, length, file); // This is to appease the compiler, specifially GCC :/
 		buffer[length] = '\0';
 	}
 	fclose(file);
@@ -24,7 +32,7 @@ char* readFile( const char *filePath ) {
 
 int main(int argc, char **argv) {
 	
-	const char *VERSION = "1.6.5";
+	const char *VERSION = "1.6.6";
 
 	if ( argc == 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) ) {
 		printf("Usage: jmake [flag] [command] <project>\n");
@@ -207,7 +215,7 @@ int main(int argc, char **argv) {
 
 		rewind(file); // Goes to the start to be able to read properly.
 		char *buffer = malloc(exe_size); // Allocates memory to store binary content.
-		fread(buffer,exe_size,1,file); // Reads content into buffer.
+		size_t items_read = fread(buffer,exe_size,1,file); // Reads content into buffer. Also here to maybe shut GCC up.
 		fclose(file);
 
 		FILE *install_ptr = fopen(path,"wb"); // Opens install file for writing.
@@ -228,7 +236,11 @@ int main(int argc, char **argv) {
 	int len = snprintf(NULL, 0, "%s %s -o %s %s %s", cc, cflags, exe, src, lflags);
 	char *command = malloc(len + 1);
 	snprintf(command, len + 1, "%s %s -o %s %s %s", cc, cflags, exe, src, lflags);
-	system(command);
+	int ret = system(command); // Again, here to appease GCC...
+	if ( ret != 0 ) {
+		printf("jmake: Compilation failed with an exit code of %d\n", ret);
+		exit(1);
+	}
 	free(command);
 	cJSON_Delete(root);
 	return 0;
