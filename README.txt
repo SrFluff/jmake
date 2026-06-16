@@ -44,11 +44,12 @@ To export your make.json to Makefile:
 Configuration
 
 The config (make.json) takes four keys:
-	"cc" - The compiler
-	"cflags" - The flags for the compiler
-	"src" - The source C files
-	"exe" - The executable name
+	"cc" - The compiler.
+	"cflags" - The flags for the compiler.
+	"src" - The source C files.
+	"exe" - The executable name.
 	"install_dir" - The directory where your binary will be copied to.
+	"lflags" - Linker flags.
 
 ======
 

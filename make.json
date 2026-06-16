@@ -1,7 +1,8 @@
 {
 	"cc":"CC",
-	"cflags":"-O3 -march=native -lcjson",
+	"cflags":"-O3 -march=native",
 	"src":"src/jmake.c",
 	"exe":"bin/jmake",
-	"install_dir":"/usr/local/bin"
+	"install_dir":"/usr/local/bin",
+	"lflags":"-lcjson"
 }

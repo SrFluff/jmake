@@ -24,7 +24,7 @@ char* readFile( const char *filePath ) {
 
 int main(int argc, char **argv) {
 	
-	const char *VERSION = "1.5.5";
+	const char *VERSION = "1.6.5";
 
 	if ( argc == 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) ) {
 		printf("Usage: jmake [flag] [command] <project>\n");
@@ -46,11 +46,12 @@ int main(int argc, char **argv) {
 
 	if ( argc == 3 && ( strcmp(argv[1], "project") == 0 ) ) {
 		cJSON *root = cJSON_CreateObject();
-		cJSON_AddStringToObject(root,"cc","CC");
+		cJSON_AddStringToObject(root,"cc","cc");
 		cJSON_AddStringToObject(root,"cflags","");
 		cJSON_AddStringToObject(root,"src","main.c");
 		cJSON_AddStringToObject(root,"exe",argv[2]);
 		cJSON_AddStringToObject(root,"install_dir","/usr/local/bin");
+		cJSON_AddStringToObject(root,"lflags","");
 		char *root_string = cJSON_Print(root);
 		FILE *file_ptr = fopen("make.json","w");
 
@@ -108,6 +109,7 @@ int main(int argc, char **argv) {
 	char *src;
 	char *exe;
 	char *install_dir;
+	char *lflags;
 
 	if ( cJSON_HasObjectItem(root, "cc") ) {
 		cJSON *cc_ptr = cJSON_GetObjectItem(root, "cc");
@@ -141,6 +143,14 @@ int main(int argc, char **argv) {
 		printf("jmake: Warning, no exe specified in make.json, falling back to '%s'.\n",exe);
 	}
 
+	if ( cJSON_HasObjectItem(root, "lflags" ) ) {
+		cJSON *lflags_ptr = cJSON_GetObjectItem(root, "lflags");
+		lflags = lflags_ptr->valuestring;
+	} else {
+		lflags = "";
+		printf("jmake: Warning, no lflags specified in make.json, falling back to '%s'.\n",lflags);
+	}
+
 	if ( argc == 2 && strcmp(argv[1],"export") == 0 ) {
 		if ( cJSON_HasObjectItem(root, "install_dir") ) {
 			cJSON *install_dir_ptr = cJSON_GetObjectItem(root, "install_dir");
@@ -154,10 +164,11 @@ int main(int argc, char **argv) {
 		printf("CFLAGS = %s\n",cflags);
 		printf("SOURCE = %s\n",src);
 		printf("TARGET = %s\n",exe);
-		printf("INSTALLDIR = %s\n\n",install_dir);
+		printf("INSTALLDIR = %s\n",install_dir);
+		printf("LFLAGS = %s\n\n",lflags);
 		
 		printf("all:\n");
-		printf("\t$(COMPILER) $(CFLAGS) -o $(TARGET) $(SOURCE)\n");
+		printf("\t$(COMPILER) $(CFLAGS) -o $(TARGET) $(SOURCE) $(LFLAGS)\n");
 		printf("install:\n");
 		printf("\tinstall -m 755 $(TARGET) $(INSTALLDIR)\n");
 		printf("clean:\n");
@@ -214,9 +225,9 @@ int main(int argc, char **argv) {
 		exit(0);
 	}
 
-	int len = snprintf(NULL, 0, "%s %s -o %s %s", cc, cflags, exe, src);
+	int len = snprintf(NULL, 0, "%s %s -o %s %s %s", cc, cflags, exe, src, lflags);
 	char *command = malloc(len + 1);
-	snprintf(command, len + 1, "%s %s -o %s %s", cc, cflags, exe, src);
+	snprintf(command, len + 1, "%s %s -o %s %s %s", cc, cflags, exe, src, lflags);
 	system(command);
 	free(command);
 	cJSON_Delete(root);
